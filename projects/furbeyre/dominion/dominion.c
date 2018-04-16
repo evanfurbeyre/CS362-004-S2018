@@ -1229,7 +1229,7 @@ int adventurerEffect(int drawntreasure, int currentPlayer, struct gameState *sta
 		{                 //if the deck is empty we need to shuffle discard and add to deck
 			shuffle(currentPlayer, state);
 		}
-		drawCard(currentPlayer, state);
+//
 		cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];                 //top card of hand is most recently drawn card.
 		if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
 			drawntreasure++;
@@ -1351,6 +1351,7 @@ int mineEffect(int choice1, int choice2, int handPos, int currentPlayer, struct 
 	gainCard(choice2, state, 2, currentPlayer);
 
 	//discard card from hand
+	discardCard(handPos, currentPlayer, state, 0);
 
 	//discard trashed card
 	for (i = 0; i < state->handCount[currentPlayer]; i++)
