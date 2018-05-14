@@ -1,2 +1,4 @@
-run make all #To compile the dominion code
-run ./playdom 30 # to run playdom code
+Assignment 4
+
+1) make clean
+2) make randomtests

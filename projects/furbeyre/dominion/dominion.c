@@ -13,14 +13,6 @@ int compare(const void* a, const void* b) {
 	return 0;
 }
 
-// For testing purposes
-void printHand(int player, struct gameState* G, char* text) {
-    int i;
-    for ( i = 0; i < G->handCount[player]; i++) {
-        printf("%s: Card %d: %d\n", text, i, G->hand[player][i]);
-    }
-}
-
 struct gameState* newGame() {
 	struct gameState* g = malloc(sizeof(struct gameState));
 	return g;
@@ -653,8 +645,7 @@ int getCost(int cardNumber)
 	return -1;
 }
 
-int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
-{
+int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus) {
 	int i;
 	int j;
 	int k;
@@ -1217,7 +1208,7 @@ int smithyEffect(int handPos, int currentPlayer, struct gameState *state)
 {
 	//+3 Cards
 	int i;
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 3; i++)
 	{
 		drawCard(currentPlayer, state);
 	}
@@ -1240,17 +1231,19 @@ int adventurerEffect(int drawntreasure, int currentPlayer, struct gameState *sta
 
         drawCard(currentPlayer, state);
 
-		cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];                 //top card of hand is most recently drawn card.
-		if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
+         //top card of hand is most recently drawn card.
+		cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];
+		if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold) {
 			drawntreasure++;
-		else{
+		}else{
 			temphand[z]=cardDrawn;
-			state->handCount[currentPlayer]--;                         //this should just remove the top card (the most recently drawn one).
+			state->handCount[currentPlayer]--;  //this should just remove the the most recently drawn
 			z++;
 		}
 	}
 	while(z-1>=0) {
-		state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1];                 // discard all cards in play that have been drawn
+        // discard all cards in play that have been drawn
+		state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1];
 		z=z-1;
 	}
 	return 0;
@@ -1271,7 +1264,7 @@ int councilRoomEffect(int handPos, int currentPlayer, struct gameState *state)
     //Each other player draws a card
     for (i = 0; i < state->numPlayers; i++)
     {
-        if ( i == currentPlayer )
+        if ( i != currentPlayer )
         {
             drawCard(i, state);
         }

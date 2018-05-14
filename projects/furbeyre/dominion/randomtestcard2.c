@@ -1,5 +1,5 @@
 /*
- * cardtest1.c -- ADVENTURER
+ * cardtest3.c -- MINE
  */
 
 /*
@@ -9,7 +9,6 @@
  *      gcc -o cardtest1 -g  cardtest1.c dominion.o rngs.o $(CFLAGS)
  */
 
-
 #include "dominion.h"
 #include "dominion_helpers.h"
 #include <string.h>
@@ -17,13 +16,12 @@
 #include <assert.h>
 #include "rngs.h"
 #include <stdlib.h>
-#include <time.h>
 
-#define TESTCARD "ADVENTURER"
+#define TESTCARD "MINE"
 int numPass = 0;
 int numFail = 0;
 
-int testResult(int exp, int act, char* desc) {
+void testResult(int exp, int act, char* desc) {
     printf("|  %-64s  ", desc);
     printf("|  Expected: %2d  |   Actual: %2d  |  Result:  ", exp, act);
     if (exp == act){
@@ -32,25 +30,25 @@ int testResult(int exp, int act, char* desc) {
     } else {
         printf("FAIL  |\n");
         numFail++;
-        return -1;
     }
-    return 0;
 }
 
-int getNumTreasuresInHand(int currentPlayer, struct gameState* G) {
-    int count = 0;
-    int i, card;
-    for ( i=0; i<G->handCount[currentPlayer]; i++) {
-        card = G->hand[currentPlayer][i];
-        if ( card == copper || card == silver || card == gold )
-            count++;
+int getFirst(int card, int player, struct gameState* G) {
+    int i;
+    for ( i = 0; i < G->handCount[player]; i++) {
+        if (G->hand[player][i] == card) {
+            return i;
+        }
     }
-    return count;
+    return -1;
 }
 
-void resetGame(int numPlayer, int* k, int seed, struct gameState* G) {
-    memset(G, 0, sizeof(struct gameState));    // clear the game state
-    initializeGame(numPlayer, k, seed, G);     // initialize a new game
+int getHandCost(int player, struct gameState* G) {
+    int i, totalCost = 0;
+    for ( i = 0; i < G->handCount[player]; i++) {
+        totalCost += getCost(G->hand[player][i]);
+    }
+    return totalCost;
 }
 
 int getRandInt(int low, int high) {
@@ -64,18 +62,13 @@ void getRandCards(int* arr, int size, int* pool, int pool_len) {
     }
 }
 
-// For testing purposes
-void printHand(struct gameState* G) {
-    int i;
-    for ( i = 0; i < G->handCount[G->whoseTurn]; i++) {
-        printf("Card %d: %d\n", i, G->hand[G->whoseTurn][i]);
-    }
+void resetGame(int numPlayer, int* k, int seed, struct gameState* G) {
+    memset(G, 0, sizeof(struct gameState));    // clear the game state
+    initializeGame(numPlayer, k, seed, G);     // initialize a new game
 }
 
 int main() {
-    srand(time(NULL));
-    int i, g, p, h, d, x, n;
-    int oldTreasCount, newTreasCount;
+    int i, j, g, p, h, n, d, x; // Loop Counters
     char desc[128];
     int seed = 1000;
 	struct gameState G, testG;
@@ -88,10 +81,9 @@ int main() {
                  copper, copper, copper, copper, copper, silver, gold,
                  estate, duchy, province, gardens};
 
+    printf("\n****************************************************** Testing COUNCIL ROOM *************************************************\n");
 
-    printf("\n************************************************ Random Testing ADVENTURER *************************************************\n");
-
-    for (i = 1; i <= 500; i++) {
+    for (i = 1; i <= 100; i++) {
         g = getRandInt(2, 4);       // Get random number of players in game
         p = getRandInt(0, g-1);     // Get random player
         h = getRandInt(4, 9);      // Get random number of cards in hand
@@ -100,47 +92,44 @@ int main() {
         n = getRandInt(0, h-1);       // Get random card position
 
         resetGame(g, k, seed, &G);
-        G.whoseTurn = p;
 
-        // Set hand
+        // Set hand for each
         G.handCount[p] = h;
         getRandCards(G.hand[p], h, pool, pool_len);
-        G.hand[p][n] = adventurer;  // One of the cards in hand must be adventurer
+        G.hand[p][n] = council_room;  // One of the cards in hand must be adventurer
 
         // Set deck
         G.deckCount[p] = d;
         getRandCards(G.deck[p], d, pool, pool_len);
-        G.deck[p][getRandInt(0, 3)] = copper;  // Must be at least _ coppers in deck
-        // G.deck[p][getRandInt(4, 7)] = copper;
-        // G.deck[p][getRandInt(8, d)] = copper;
 
         // Set discard
         G.discardCount[p] = x;
         getRandCards(G.deck[p], x, pool, pool_len);
-        G.discard[p][getRandInt(0, x)] = copper;  // Must be at least 1 copper in discard
 
         memcpy(&testG, &G, sizeof(struct gameState));       // Copy current game state
+        G.whoseTurn = p;
 
-        cardEffect(adventurer, 0, 0, 0, &G, n, 0);
+        cardEffect(council_room, 0, 0, 0, &G, n, 0);
 
         printf("\n---------- Setup %d: %d Players, P%d, Hand Count %d, Card position %d, Deck Count %d, Discard Count %d ---------------\n", i, g, p+1, h, n, d, x);
-        sprintf(desc, "---- new hand count is 2 more");
-        if (testResult(testG.handCount[p]+2, G.handCount[p], desc) == -1 ) {
-            printf("Hand Before: \n");
-            printHand(&testG);
-            printf("Hand After: \n");
-            printHand(&G);
-        }
-        sprintf(desc, "---- new tresure count 2 more");
-        oldTreasCount = getNumTreasuresInHand(p, &testG);
-        newTreasCount = getNumTreasuresInHand(p, &G);
-        if (testResult(oldTreasCount + 2, newTreasCount, desc) == -1 ) {
-            printf("Hand Before: \n");
-            printHand(&testG);
-            printf("Hand After: \n");
-            printHand(&G);
+
+        sprintf(desc, "---------   new hand count is 3 more");
+        testResult(testG.handCount[p]+3, G.handCount[p], desc);
+        sprintf(desc, "----------- new deck count is 3 less");
+        testResult(testG.deckCount[p]-4, G.deckCount[p], desc);
+        sprintf(desc, "--------- new played count is 1 more");
+        testResult(testG.playedCardCount+1, G.playedCardCount, desc);
+
+        for (j = 0; j < g; j++) {
+            if (j != p) {
+                G.whoseTurn = j;
+                testG.whoseTurn = j;
+                sprintf(desc, "--- player %d should have 1 more card", j+1);
+                testResult(testG.handCount[j]+1, G.handCount[j], desc);
+            }
         }
     }
+
 
     printf("\n\n ***** %s TESTS: PASSED %d OUT OF %d TESTS ***** \n\n", TESTCARD, numPass, numPass+numFail);
 	return 0;
