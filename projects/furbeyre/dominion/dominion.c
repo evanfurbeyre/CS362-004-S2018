@@ -271,9 +271,9 @@ int playCard(int handPos, int choice1, int choice2, int choice3, struct gameStat
 
 int buyCard(int supplyPos, struct gameState *state) {
 	int who;
-	if (DEBUG) {
+	if (DEBUG)
 		printf("Entering buyCard...\n");
-	}
+
 
 	// I don't know what to do about the phase thing.
 
@@ -293,7 +293,7 @@ int buyCard(int supplyPos, struct gameState *state) {
 		return -1;
 	} else {
 		state->phase=1;
-		//state->supplyCount[supplyPos]--;
+		// state->supplyCount[supplyPos]--;
 		gainCard(supplyPos, state, 0, who);         //card goes in discard, this might be wrong.. (2 means goes into hand, 0 goes into discard)
 
 		state->coins = (state->coins) - (getCost(supplyPos));
@@ -302,8 +302,8 @@ int buyCard(int supplyPos, struct gameState *state) {
 			printf("You bought card number %d for %d coins. You now have %d buys and %d coins.\n", supplyPos, getCost(supplyPos), state->numBuys, state->coins);
 	}
 
-	//state->discard[who][state->discardCount[who]] = supplyPos;
-	//state->discardCount[who]++;
+	// state->discard[who][state->discardCount[who]] = supplyPos;
+	// state->discardCount[who]++;
 
 	return 0;
 }
@@ -524,6 +524,7 @@ int getWinners(int players[MAX_PLAYERS], struct gameState *state) {
 
 int drawCard(int player, struct gameState *state)
 {
+    // printf("state->deckCount[player]: %d", state->deckCount[player]);
 	int count;
 	int deckCounter;
 	if (state->deckCount[player] <= 0) {    //Deck is empty
@@ -644,8 +645,7 @@ int getCost(int cardNumber)
 	return -1;
 }
 
-int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
-{
+int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus) {
 	int i;
 	int j;
 	int k;
@@ -1141,7 +1141,6 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state, int tra
 int gainCard(int supplyPos, struct gameState *state, int toFlag, int player)
 {
 	//Note: supplyPos is enum of choosen card
-
 	//check if supply pile is empty (0) or card is not used in game (-1)
 	if ( supplyCount(supplyPos, state) < 1 )
 	{
@@ -1209,7 +1208,7 @@ int smithyEffect(int handPos, int currentPlayer, struct gameState *state)
 {
 	//+3 Cards
 	int i;
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 3; i++)
 	{
 		drawCard(currentPlayer, state);
 	}
@@ -1229,18 +1228,22 @@ int adventurerEffect(int drawntreasure, int currentPlayer, struct gameState *sta
 		{                 //if the deck is empty we need to shuffle discard and add to deck
 			shuffle(currentPlayer, state);
 		}
-//
-		cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];                 //top card of hand is most recently drawn card.
-		if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
+
+        drawCard(currentPlayer, state);
+
+         //top card of hand is most recently drawn card.
+		cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];
+		if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold) {
 			drawntreasure++;
-		else{
+		}else{
 			temphand[z]=cardDrawn;
-			state->handCount[currentPlayer]--;                         //this should just remove the top card (the most recently drawn one).
+			state->handCount[currentPlayer]--;  //this should just remove the the most recently drawn
 			z++;
 		}
 	}
 	while(z-1>=0) {
-		state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1];                 // discard all cards in play that have been drawn
+        // discard all cards in play that have been drawn
+		state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1];
 		z=z-1;
 	}
 	return 0;
@@ -1261,7 +1264,7 @@ int councilRoomEffect(int handPos, int currentPlayer, struct gameState *state)
     //Each other player draws a card
     for (i = 0; i < state->numPlayers; i++)
     {
-        if ( i == currentPlayer )
+        if ( i != currentPlayer )
         {
             drawCard(i, state);
         }
@@ -1275,8 +1278,9 @@ int councilRoomEffect(int handPos, int currentPlayer, struct gameState *state)
 
 int feastEffect(int choice1, int choice2, int currentPlayer, struct gameState *state, int *temphand)
 {
+
     //gain card with cost up to 5
-    //Backup hand
+    // //Backup hand TODO remove this
     int i;
     for (i = 0; i <= state->handCount[currentPlayer]; i++) {
         temphand[i] = state->hand[currentPlayer][i];            //Backup card
@@ -1285,7 +1289,7 @@ int feastEffect(int choice1, int choice2, int currentPlayer, struct gameState *s
     //Backup hand
 
     //Update Coins for Buy
-    updateCoins(currentPlayer, state, 5);
+    // updateCoins(currentPlayer, state, 5);
     int x = 1;        //Condition to loop on
     while( x == 1) {        //Buy one card
         if (supplyCount(choice1, state) < 0) {
@@ -1295,21 +1299,27 @@ int feastEffect(int choice1, int choice2, int currentPlayer, struct gameState *s
             if (DEBUG) {
                 printf("Cards Left: %d\n", supplyCount(choice1, state));
             }
+            x = 0;
         }
+        // TODO
+        // else if ( 5 < getCost(choice1)) {
         else if (state->coins < getCost(choice1)) {
-            printf("That card is too expensive!\n");
+            if (DEBUG)
+                printf("That card is too expensive!\n");
 
             if (DEBUG) {
                 printf("Coins: %d < %d\n", state->coins, getCost(choice1));
             }
+            x = 0;
         }
         else{
-
             if (DEBUG) {
                 printf("Deck Count: %d\n", state->handCount[currentPlayer] + state->deckCount[currentPlayer] + state->discardCount[currentPlayer]);
             }
 
             gainCard(choice1, state, 0, currentPlayer);                //Gain the card
+            // TODO
+            // discardCard(choice2, currentPlayer, state, 1);
             x = 0;                //No more buying cards
 
             if (DEBUG) {
@@ -1319,7 +1329,7 @@ int feastEffect(int choice1, int choice2, int currentPlayer, struct gameState *s
         }
     }
 
-    //Reset Hand
+    //Reset Hand TODO remove this
     for (i = 0; i <= state->handCount[currentPlayer]; i++) {
         state->hand[currentPlayer][i] = temphand[i];
         temphand[i] = -1;
@@ -1343,7 +1353,7 @@ int mineEffect(int choice1, int choice2, int handPos, int currentPlayer, struct 
 		return -1;
 	}
 
-	if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) )
+	if ( (getCost(state->hand[currentPlayer][choice1]) + 3) < getCost(choice2) )
 	{
 		return -1;
 	}
