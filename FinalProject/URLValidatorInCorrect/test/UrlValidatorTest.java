@@ -25,10 +25,9 @@ public class UrlValidatorTest extends TestCase {
 	   
 	   System.out.println("Running Manual Tests (8 total).");
 	   
-	   System.out.println("http://www.google.com/a/b Valid? " + validator.isValid("http://www.google.com/a/b"));
 	   System.out.println("http://www.amazon.com Valid? " + validator.isValid("http://www.amazon.com"));
 	   System.out.println("http://www.amazon.co Valid? " + validator.isValid("http://www.amazon.co"));
-	   System.out.println("http://www.amazon.cm Valid? " + validator.isValid("http://www.amazon.cm"));
+	   System.out.println("http://256.256.256.256 Valid? " + validator.isValid("http://256.256.256.256"));
 	   System.out.println("http://www.google.com Valid? " + validator.isValid("http://www.google.com"));
 	   System.out.println("file://C:/Users/admin/Document Valid? " + validator.isValid("file://C:/Users/admin/Document"));
 	   System.out.println("ftp://ftp.test/filefolder/somethinng.txt Valid? " + validator.isValid("ftp://ftp.test/filefolder/somethinng.txt"));
