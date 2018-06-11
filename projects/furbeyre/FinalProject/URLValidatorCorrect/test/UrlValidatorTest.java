@@ -185,7 +185,7 @@ protected void setUp() {
     */
    public static void main(String[] argv) {
 
-	   UrlValidatorTest fct = new UrlValidatorTest("url test");
+	  UrlValidatorTest fct = new UrlValidatorTest("url test");
       fct.setUp();
       fct.testIsValid();
       fct.testIsValidScheme();
