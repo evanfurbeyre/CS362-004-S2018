@@ -430,13 +430,13 @@ public class UrlValidatorTest extends TestCase {
 	   
 	   testValidator.testManualTest();
 	  
-	   //testValidator.partitionTester(tests, 0); //All Valid information
-	   //testValidator.partitionTester(tests, 1); //Partition 1
-	   //testValidator.partitionTester(tests, 2); //Partition 2
-	   //testValidator.partitionTester(tests, 3); //Partition 3
-	   //testValidator.partitionTester(tests, 4); //Partition 4
-	   //testValidator.partitionTester(tests, 5); //Partition 5
-	   //testValidator.partitionTester(tests, 6); //Partition 6
+	   testValidator.partitionTester(tests, 0); //All Valid information
+	   testValidator.partitionTester(tests, 1); //Partition 1
+	   testValidator.partitionTester(tests, 2); //Partition 2
+	   testValidator.partitionTester(tests, 3); //Partition 3
+	   testValidator.partitionTester(tests, 4); //Partition 4
+	   testValidator.partitionTester(tests, 5); //Partition 5
+	   testValidator.partitionTester(tests, 6); //Partition 6
 	   
   }
    
